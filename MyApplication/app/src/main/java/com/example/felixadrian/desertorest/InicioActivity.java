@@ -1,5 +1,6 @@
 package com.example.felixadrian.desertorest;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -16,10 +17,13 @@ import android.widget.TextView;
 
 import com.example.felixadrian.objectos.Usuario;
 
+import static com.example.felixadrian.desertorest.R.string.navigation_drawer_open;
+
 public class InicioActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     Usuario usuario;
+    NavigationView navigationView;
 
 
     public void getUsuario(){
@@ -29,12 +33,7 @@ public class InicioActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-
-
-
         setContentView(R.layout.activity_inicio);
-
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -48,17 +47,32 @@ public class InicioActivity extends AppCompatActivity
         });
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, navigation_drawer_open, R.string.navigation_drawer_close){
+            /** Called when a drawer has settled in a completely closed state. */
+            public void onDrawerClosed(View view) {
+                super.onDrawerClosed(view);
+            }
+
+            /** Called when a drawer has settled in a completely open state. */
+            public void onDrawerOpened(View drawerView) {
+                super.onDrawerOpened(drawerView);
+                setDatosHeader();
+            }
+        };
+
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-        TextView nombreUsuario = new TextView(this);
-        nombreUsuario = (TextView)findViewById (R.id.text_usuario_nombre);
         getUsuario();
-        nombreUsuario.setText("hola");
+    }
+
+    public void setDatosHeader(){
+        TextView text_usuario_nombre = (TextView) findViewById (R.id.text_usuario_nombre);
+        TextView text_usuario_correo = (TextView) findViewById (R.id.text_correo);
+        text_usuario_nombre.setText(usuario.getNombres());
+        text_usuario_correo.setText(usuario.getCorreo());
     }
 
     @Override
@@ -100,7 +114,9 @@ public class InicioActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.reportar_esertor) {
-            // Handle the camera action
+            Intent intent = new Intent(getApplicationContext(), RegistrarFaltaActivity.class);
+            startActivity(intent);
+
         } else if (id == R.id.nav_gallery) {
 
         } else if (id == R.id.nav_slideshow) {

@@ -365,7 +365,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         params.put("accion", "login_user");
 
         AsyncHttpClient client = new AsyncHttpClient();
-        String url = "http://192.168.0.6/desertorest-admin/ajax/ajax_actions.php?";
+        String url = "http://192.168.0.18/desertorest-admin/ajax/ajax_actions.php?";
         //String url = "http://desertorest.flibdig.com/ajax/ajax_actions.php?";
         client.get( url + params, new AsyncHttpResponseHandler() {
             @Override
@@ -385,6 +385,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                         usuario.setIdentificacion(jsonObj.getString("usuario_identificacion"));
                         usuario.setNombres(jsonObj.getString("usuario_nombres"));
                         usuario.setApellidos(jsonObj.getString("usuario_apellidos"));
+                        usuario.setCorreo(jsonObj.getString("usuario_correo"));
 
 
                         Intent intent = new Intent(getApplicationContext(),  InicioActivity.class);
