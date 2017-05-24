@@ -1,6 +1,5 @@
 package com.example.felixadrian.desertorest;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -13,6 +12,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewStub;
 import android.widget.TextView;
 
 import com.example.felixadrian.objectos.Usuario;
@@ -114,8 +114,11 @@ public class InicioActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.reportar_esertor) {
-            Intent intent = new Intent(getApplicationContext(), RegistrarFaltaActivity.class);
-            startActivity(intent);
+            ViewStub stub = (ViewStub) findViewById(R.id.layout_stub);
+            stub.setLayoutResource(R.layout.activity_registrar_falta);
+            View inflated = stub.inflate();
+//            Intent intent = new Intent(getApplicationContext(), RegistrarFaltaActivity.class);
+//            startActivity(intent);
 
         } else if (id == R.id.nav_gallery) {
 
