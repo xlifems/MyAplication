@@ -4,12 +4,12 @@
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/reportar_esertor"
-            android:icon="@drawable/ic_menu_send"
+            android:icon="@drawable/ic_event_seat_black_24dp"
             android:title="Reportar Desertor" />
         <item
             android:id="@+id/nav_gallery"
-            android:icon="@drawable/ic_menu_gallery"
-            android:title="Gallery" />
+            android:icon="@drawable/ic_event_busy_black_24dp"
+            android:title="Asignar Fallas" />
         <item
             android:id="@+id/nav_slideshow"
             android:icon="@drawable/ic_menu_slideshow"

@@ -15,19 +15,25 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewStub;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.felixadrian.objectos.Falta;
 import com.example.felixadrian.objectos.Usuario;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 import cz.msebera.android.httpclient.HttpResponse;
 import cz.msebera.android.httpclient.client.HttpClient;
@@ -38,19 +44,31 @@ import cz.msebera.android.httpclient.impl.client.DefaultHttpClient;
 import static com.example.felixadrian.desertorest.R.string.navigation_drawer_open;
 
 public class InicioActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener  {
+        implements NavigationView.OnNavigationItemSelectedListener {
 
-    Usuario usuario;
+
     NavigationView navigationView;
-
-
     private TextView nombre_usuario_falta;
     private TextView motivo_falta;
     private TextView observacion_falta;
     private Button registrar_falta_button;
-    Falta falta ;
+    private FloatingActionButton fab;
+    private FloatingActionButton fab2;
 
-    public void getUsuario(){
+    private View inflated;
+
+    private ViewStub stub;
+    Usuario usuario;
+    Falta falta;
+
+    private ArrayList<Usuario> listaUsuarios = new ArrayList<>();
+    HashMap<Long,Usuario> spinnerMap = new HashMap<Long, Usuario>();
+
+
+    //ArrayAdapter para conectar el Spinner a nuestros recursos strings.xml
+    protected ArrayAdapter<CharSequence> adapter;
+
+    public void getUsuario() {
         usuario = getIntent().getExtras().getParcelable("parametro");
     }
 
@@ -60,18 +78,34 @@ public class InicioActivity extends AppCompatActivity
         setContentView(R.layout.activity_inicio);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        stub = (ViewStub) findViewById(R.id.layout_stub);
+        fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                // call AsynTask to perform network operation on separate thread
+                new registrar().execute("http://192.168.0.18/desertorest-admin/ajax/ajax_actions.php?accion=registrar_faltas_android");
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
             }
         });
 
+        fab2 = (FloatingActionButton) findViewById(R.id.fab_2);
+        fab2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // call AsynTask to perform network operation on separate thread
+                //new registrar().execute("http://192.168.0.18/desertorest-admin/ajax/ajax_actions.php?accion=registrar_faltas_android");
+                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+            }
+        });
+
+        fab.setVisibility(View.INVISIBLE);
+        fab2.setVisibility(View.INVISIBLE);
+
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, navigation_drawer_open, R.string.navigation_drawer_close){
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, navigation_drawer_open, R.string.navigation_drawer_close) {
             /** Called when a drawer has settled in a completely closed state. */
             public void onDrawerClosed(View view) {
                 super.onDrawerClosed(view);
@@ -91,11 +125,12 @@ public class InicioActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
         getUsuario();
         falta = new Falta();
+        new getListaUsuarios().execute();
     }
 
-    public void setDatosHeader(){
-        TextView text_usuario_nombre = (TextView) findViewById (R.id.text_usuario_nombre);
-        TextView text_usuario_correo = (TextView) findViewById (R.id.text_correo);
+    public void setDatosHeader() {
+        TextView text_usuario_nombre = (TextView) findViewById(R.id.text_usuario_nombre);
+        TextView text_usuario_correo = (TextView) findViewById(R.id.text_correo);
         text_usuario_nombre.setText(usuario.getNombres());
         text_usuario_correo.setText(usuario.getCorreo());
     }
@@ -136,24 +171,25 @@ public class InicioActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
         if (id == R.id.reportar_esertor) {
-            ViewStub stub = (ViewStub) findViewById(R.id.layout_stub);
-            stub.setLayoutResource(R.layout.layout_faltas);
-            View inflated = stub.inflate();
 
+            stub.setLayoutResource(R.layout.layout_desertor);
+            inflated = stub.inflate();
             nombre_usuario_falta = (TextView) findViewById(R.id.nombre_usuario_falta);
             motivo_falta = (TextView) findViewById(R.id.motivo_falta);
             observacion_falta = (TextView) findViewById(R.id.observacion_falta);
-            registrar_falta_button = (Button) findViewById(R.id.registrar_falta_button);
 
-            registrar_falta_button.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    // call AsynTask to perform network operation on separate thread
-                    new registrar().execute("http://192.168.0.18/desertorest-admin/ajax/ajax_actions.php?accion=registrar_faltas_android");
-                }
-            });
+            llenarSpinner();
+            fab.setVisibility(View.VISIBLE);
 
         } else if (id == R.id.nav_gallery) {
+            stub.setLayoutResource(R.layout.layout_faltas);
+            inflated = stub.inflate();
+            nombre_usuario_falta = (TextView) findViewById(R.id.nombre_usuario_falta);
+            motivo_falta = (TextView) findViewById(R.id.motivo_falta);
+            observacion_falta = (TextView) findViewById(R.id.observacion_falta);
+
+            llenarSpinner();
+            fab.setVisibility(View.VISIBLE);
 
         } else if (id == R.id.nav_slideshow) {
 
@@ -170,23 +206,32 @@ public class InicioActivity extends AppCompatActivity
         return true;
     }
 
-    public String POST(String url){
+    public String POST(String url) {
         InputStream inputStream = null;
         String result = "";
         try {
             Falta f = new Falta();
-            f.setIdUsuario(Integer.parseInt(nombre_usuario_falta.getText().toString().trim()));
-            f.setMotivoFalta(motivo_falta.getText().toString().trim());
+
             f.setObservacionFalta(observacion_falta.getText().toString().trim());
             // 1. create HttpClient
             HttpClient httpclient = new DefaultHttpClient();
             // 2. make POST request to the given URL
             HttpPost httpPost = new HttpPost(url);
+
+            Spinner spinnerUsuario = (Spinner)findViewById(R.id.usuariosSpinner);
+            String text = spinnerUsuario.getSelectedItem().toString();
+            int spinner_pos = spinnerUsuario.getSelectedItemPosition();
+
+            Spinner spinnerMotivos = (Spinner)findViewById(R.id.motivosSpinner);
+            String textMotivo = spinnerMotivos.getSelectedItem().toString();
+
+
             String json = "";
+
             // 3. build jsonObject
             JSONObject jsonObject = new JSONObject();
-            jsonObject.accumulate("id_usuario", nombre_usuario_falta.getText().toString().trim());
-            jsonObject.accumulate("falta_motivo", motivo_falta.getText().toString().trim());
+            jsonObject.accumulate("id_usuario", spinnerMap.get((long) spinner_pos).getId() );
+            jsonObject.accumulate("falta_motivo", textMotivo);
             jsonObject.accumulate("falta_observacion", observacion_falta.getText().toString().trim());
             jsonObject.accumulate("falta_fecha", "2000/01/01");
             jsonObject.accumulate("accion", "registrar_faltas_android");
@@ -215,7 +260,7 @@ public class InicioActivity extends AppCompatActivity
             inputStream = httpResponse.getEntity().getContent();
 
             // 10. convert inputstream to string
-            if(inputStream != null)
+            if (inputStream != null)
                 result = convertInputStreamToString(inputStream);
             else
                 result = "Did not work!";
@@ -233,19 +278,20 @@ public class InicioActivity extends AppCompatActivity
         protected String doInBackground(String... urls) {
             return POST(urls[0]);
         }
+
         // onPostExecute displays the results of the AsyncTask.
         @Override
         protected void onPostExecute(String result) {
             if (result.equals("1"))
-            Toast.makeText(getBaseContext(), "Data Sent!", Toast.LENGTH_LONG).show();
+                Toast.makeText(getBaseContext(), "Falla Registrada!", Toast.LENGTH_LONG).show();
         }
     }
 
     private static String convertInputStreamToString(InputStream inputStream) throws IOException {
-        BufferedReader bufferedReader = new BufferedReader( new InputStreamReader(inputStream));
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
         String line = "";
         String result = "";
-        while((line = bufferedReader.readLine()) != null)
+        while ((line = bufferedReader.readLine()) != null)
             result += line;
 
         inputStream.close();
@@ -253,6 +299,95 @@ public class InicioActivity extends AppCompatActivity
 
     }
 
+    private class getListaUsuarios extends AsyncTask<String, Void, String> {
+        @Override
+        protected String doInBackground(String... urls) {
+            InputStream inputStream = null;
+            String result = "";
+            try {
+                // 1. create HttpClient
+                HttpClient httpclient = new DefaultHttpClient();
+                // 2. make POST request to the given URL
+                HttpPost httpPost = new HttpPost("http://192.168.0.18/desertorest-admin/ajax/ajax_actions.php?accion=cargar_clientes");
 
+                String json = "";
+                // 3. build jsonObject
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.accumulate("accion", "cargar_clientes");
+                // 4. convert JSONObject to JSON to String
+                json = jsonObject.toString();
+                // ** Alternative way to convert Person object to JSON string usin Jackson Lib
+                // ObjectMapper mapper = new ObjectMapper();
+                // json = mapper.writeValueAsString(person);
+                // 5. set json to StringEntity
+                StringEntity se = new StringEntity(json);
+                // 6. set httpPost Entity
+                httpPost.setEntity(se);
+                // 7. Set some headers to inform server about the type of the content
+                httpPost.setHeader("Accept", "application/json");
+                httpPost.setHeader("Content-type", "application/json");
+                // 8. Execute POST request to the given URL
+                HttpResponse httpResponse = httpclient.execute(httpPost);
+                // 9. receive response as inputStream
+                inputStream = httpResponse.getEntity().getContent();
+                // 10. convert inputstream to string
+                if (inputStream != null)
+                    result = convertInputStreamToString(inputStream);
+                else
+                    result = "Did not work!";
+            } catch (Exception e) {
+                Log.d("InputStream", e.getLocalizedMessage());
+            }
+            // 11. return result
+            return result;
+        }
+
+        // onPostExecute displays the results of the AsyncTask.
+        @Override
+        protected void onPostExecute(String result) {
+            JSONObject jsonObj = null;
+            try {
+                jsonObj = new JSONObject(result);
+                JSONArray jsonArray = jsonObj.getJSONArray("data");
+                if (jsonArray.length() > 0) {
+                    for (int i = 0; i < jsonArray.length(); i++){
+                        Usuario usuario = new Usuario();
+                        usuario.setId(jsonArray.getJSONObject(i).getLong("usuario_id") );
+                        usuario.setTidentificacion(jsonArray.getJSONObject(i).getString("usuario_tidentificacion"));
+                        usuario.setIdentificacion(jsonArray.getJSONObject(i).getString("usuario_identificacion"));
+                        usuario.setNombres(jsonArray.getJSONObject(i).getString("usuario_nombres"));
+                        usuario.setApellidos(jsonArray.getJSONObject(i).getString("usuario_apellidos"));
+                        listaUsuarios.add(usuario);
+                    }
+                } else {
+                    Toast.makeText(getBaseContext(), "Data Sent!", Toast.LENGTH_LONG).show();
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+        }
+    }
+
+    private void llenarSpinner() {
+
+        ArrayList<String> strings = new ArrayList<>();
+        for (int i = 0; i < listaUsuarios.size(); i++) {
+            strings.add(listaUsuarios.get(i).getNombres()+" "+listaUsuarios.get(i).getNombres());
+            spinnerMap.put((long) i, listaUsuarios.get(i));
+        }
+
+        Spinner usuariosSpinner = (Spinner) findViewById(R.id.usuariosSpinner);
+        ArrayAdapter spinner_adapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item, strings);
+        //Estiliza el spinner_adapter de forma que queden separados los elementos
+        spinner_adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        // Seteamos el contenido del spinner_adapter al Spinner
+        usuariosSpinner.setAdapter(spinner_adapter);
+
+        Spinner spinnerMotivos = (Spinner) findViewById(R.id.motivosSpinner);
+        ArrayAdapter spinnerElmentosAdapter = ArrayAdapter.createFromResource( this, R.array.motivos , android.R.layout.simple_spinner_item);
+        spinnerElmentosAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerMotivos.setAdapter(spinnerElmentosAdapter);
+    }
 
 }

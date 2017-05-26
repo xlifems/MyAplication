@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="motivos">
+        <item>Fallecido</item>
+        <item>Desertor</item>
+        <item>Se caso</item>
+        <item>No le gusta el estudio</item>
+        <item>Trabaja</item>
+        <item>No se tiene informacion aun</item>
+        <item>Reprobo el año</item>
+        <item>Violencia familiar</item>
+        <item>Bulling</item>
+        <item>Drogas</item>
+        <item>Expulsado </item>
+        <item>Otra cual</item>
+    </string-array>
+</resources>
