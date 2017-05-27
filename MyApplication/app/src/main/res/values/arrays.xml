@@ -14,4 +14,13 @@
         <item>Expulsado </item>
         <item>Otra cual</item>
     </string-array>
+
+    <string-array name="motivos_faltas">
+        <item>Lluvias</item>
+        <item>Esta enfermo</item>
+        <item>No esta en la ciudad</item>
+        <item>Cita médica</item>
+        <item>Vueltas personales</item>
+        <item>Otra cual</item>
+    </string-array>
 </resources>

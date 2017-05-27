@@ -1,29 +1,18 @@
 package com.example.felixadrian.desertorest;
 
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.annotation.NonNull;
+import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewStub;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.LinearLayout;
+import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.felixadrian.objectos.Falta;
 import com.example.felixadrian.objectos.Usuario;
 
 import org.json.JSONArray;
@@ -43,180 +32,45 @@ import cz.msebera.android.httpclient.client.methods.HttpPost;
 import cz.msebera.android.httpclient.entity.StringEntity;
 import cz.msebera.android.httpclient.impl.client.DefaultHttpClient;
 
-import static com.example.felixadrian.desertorest.R.id.layout_stub;
-import static com.example.felixadrian.desertorest.R.string.navigation_drawer_open;
+public class RegistrarFallasActivity extends AppCompatActivity {
 
-public class InicioActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
-
-
-    NavigationView navigationView;
-    private TextView nombre_usuario_falta;
-    private TextView motivo_falta;
-    private TextView observacion_falta;
-    private Button registrar_falta_button;
-    private FloatingActionButton fab;
-    private FloatingActionButton fab2;
-
-    private View inflated;
-    private ViewStub stub;
-    Usuario usuario;
-    Falta falta;
-
+    private TextView mTextMessage;
+    private EditText observacion_falta;
     private ArrayList<Usuario> listaUsuarios = new ArrayList<>();
     HashMap<Long, Usuario> spinnerMap = new HashMap<Long, Usuario>();
 
-    LinearLayout ll;
-    //ArrayAdapter para conectar el Spinner a nuestros recursos strings.xml
-    protected ArrayAdapter<CharSequence> adapter;
+    private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
+            = new BottomNavigationView.OnNavigationItemSelectedListener() {
 
-    public void getUsuario() {
-        usuario = getIntent().getExtras().getParcelable("parametro");
-    }
+        @Override
+        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+            switch (item.getItemId()) {
+                case R.id.navigation_home:
+
+                    return true;
+                case R.id.navigation_notifications:
+                    new registrar().execute("http://192.168.0.6/desertorest-admin/ajax/ajax_actions.php?accion=registrar_faltas_android");
+                    return true;
+            }
+            return false;
+        }
+
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_inicio);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
-        stub = (ViewStub) findViewById(layout_stub);
-
-
-        fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // call AsynTask to perform network operation on separate thread
-                new registrar().execute("http://192.168.0.6/desertorest-admin/ajax/ajax_actions.php?accion=registrar_faltas_android");
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
-
-        fab2 = (FloatingActionButton) findViewById(R.id.fab_2);
-        fab2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // call AsynTask to perform network operation on separate thread
-                //new registrar().execute("http://192.168.0.18/desertorest-admin/ajax/ajax_actions.php?accion=registrar_faltas_android");
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
-
-
-        fab.setVisibility(View.INVISIBLE);
-        fab2.setVisibility(View.INVISIBLE);
-
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, navigation_drawer_open, R.string.navigation_drawer_close) {
-            /** Called when a drawer has settled in a completely closed state. */
-            public void onDrawerClosed(View view) {
-                super.onDrawerClosed(view);
-            }
-
-            /** Called when a drawer has settled in a completely open state. */
-            public void onDrawerOpened(View drawerView) {
-                super.onDrawerOpened(drawerView);
-                setDatosHeader();
-
-            }
-        };
-
-        drawer.setDrawerListener(toggle);
-        toggle.syncState();
-
-        navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
-        getUsuario();
-        falta = new Falta();
+        setContentView(R.layout.activity_registrar_fallas);
+        observacion_falta = (EditText) findViewById(R.id.observacion_falta);
+        BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
+        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         new getListaUsuarios().execute();
-    }
-
-    public void setDatosHeader() {
-        TextView text_usuario_nombre = (TextView) findViewById(R.id.text_usuario_nombre);
-        TextView text_usuario_correo = (TextView) findViewById(R.id.text_correo);
-        text_usuario_nombre.setText(usuario.getNombres());
-        text_usuario_correo.setText(usuario.getCorreo());
-    }
-
-    @Override
-    public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
-        }
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.inicio, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    @SuppressWarnings("StatementWithEmptyBody")
-    @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
-        int id = item.getItemId();
-        if (id == R.id.reportar_esertor) {
-//            stub.setLayoutResource(R.layout.layout_faltas);
-//            stub.inflate();
-//            nombre_usuario_falta = (TextView) findViewById(R.id.nombre_usuario_falta);
-//            motivo_falta = (TextView) findViewById(R.id.motivo_falta);
-//            observacion_falta = (TextView) findViewById(R.id.observacion_falta);
-
-//            llenarSpinner();
-//            fab.setVisibility(View.VISIBLE);
-            Intent intent = new Intent(getApplicationContext(), ReportarDesertorActivity.class);
-            //intent.putExtra("parametro", usuario);
-            startActivity(intent);
-
-        } else if (id == R.id.nav_gallery) {
-            Intent intent = new Intent(getApplicationContext(), RegistrarFallasActivity.class);
-            startActivity(intent);
-
-
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-
-        }
-
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
-        return true;
     }
 
     public String POST(String url) {
         InputStream inputStream = null;
         String result = "";
         try {
-            Falta f = new Falta();
-
-            f.setObservacionFalta(observacion_falta.getText().toString().trim());
             // 1. create HttpClient
             HttpClient httpclient = new DefaultHttpClient();
             // 2. make POST request to the given URL
@@ -228,10 +82,7 @@ public class InicioActivity extends AppCompatActivity
 
             Spinner spinnerMotivos = (Spinner) findViewById(R.id.motivosSpinner);
             String textMotivo = spinnerMotivos.getSelectedItem().toString();
-
-
             String json = "";
-
             // 3. build jsonObject
             JSONObject jsonObject = new JSONObject();
             jsonObject.accumulate("id_usuario", spinnerMap.get((long) spinner_pos).getId());
@@ -287,7 +138,7 @@ public class InicioActivity extends AppCompatActivity
         @Override
         protected void onPostExecute(String result) {
             if (result.equals("1"))
-                Toast.makeText(getBaseContext(), "Falla Registrada!", Toast.LENGTH_LONG).show();
+                Toast.makeText(getBaseContext(), "Inasistencia Reportada", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -363,6 +214,7 @@ public class InicioActivity extends AppCompatActivity
                         usuario.setApellidos(jsonArray.getJSONObject(i).getString("usuario_apellidos"));
                         listaUsuarios.add(usuario);
                     }
+                    llenarSpinner();
                 } else {
                     Toast.makeText(getBaseContext(), "Data Sent!", Toast.LENGTH_LONG).show();
                 }
@@ -389,7 +241,7 @@ public class InicioActivity extends AppCompatActivity
         usuariosSpinner.setAdapter(spinner_adapter);
 
         Spinner spinnerMotivos = (Spinner) findViewById(R.id.motivosSpinner);
-        ArrayAdapter spinnerElmentosAdapter = ArrayAdapter.createFromResource(this, R.array.motivos, android.R.layout.simple_spinner_item);
+        ArrayAdapter spinnerElmentosAdapter = ArrayAdapter.createFromResource(this, R.array.motivos_faltas, android.R.layout.simple_spinner_item);
         spinnerElmentosAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerMotivos.setAdapter(spinnerElmentosAdapter);
     }

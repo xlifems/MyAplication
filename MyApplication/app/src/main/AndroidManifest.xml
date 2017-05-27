@@ -29,7 +29,12 @@
             android:name=".InicioActivity"
             android:label="@string/title_activity_inicio"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".RegistrarFaltaActivity"></activity>
+        <activity
+            android:name=".ReportarDesertorActivity"
+            android:label="@string/title_activity_reportar_desertor" />
+        <activity
+            android:name=".RegistrarFallasActivity"
+            android:label="@string/title_activity_registrar_fallas"></activity>
     </application>
 
 </manifest>
