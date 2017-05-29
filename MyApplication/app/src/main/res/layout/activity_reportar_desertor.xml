@@ -8,6 +8,14 @@
     android:orientation="vertical"
     tools:context="com.example.felixadrian.desertorest.ReportarDesertorActivity">
 
+    <ProgressBar
+        android:id="@+id/enviar_progress"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone" />
+
     <FrameLayout
         android:id="@+id/content"
         android:layout_width="match_parent"

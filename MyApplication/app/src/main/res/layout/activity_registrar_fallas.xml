@@ -8,6 +8,15 @@
     android:orientation="vertical"
     tools:context="com.example.felixadrian.desertorest.RegistrarFallasActivity">
 
+
+    <ProgressBar
+    android:id="@+id/enviar_progress"
+    style="?android:attr/progressBarStyleLarge"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:visibility="gone" />
+
     <FrameLayout
         android:id="@+id/content"
         android:layout_width="match_parent"
@@ -17,7 +26,7 @@
         <include
             layout="@layout/layout_faltas"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent" />
 
     </FrameLayout>
 

@@ -25,6 +25,7 @@ import android.widget.Toast;
 
 import com.example.felixadrian.objectos.Falta;
 import com.example.felixadrian.objectos.Usuario;
+import com.example.felixadrian.servicios.ServiciosUsuarios;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -132,7 +133,8 @@ public class InicioActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
         getUsuario();
         falta = new Falta();
-        new getListaUsuarios().execute();
+        //new getListaUsuarios().execute();
+        ServiciosUsuarios.getInstance().usuarios();
     }
 
     public void setDatosHeader() {
@@ -178,24 +180,15 @@ public class InicioActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
         if (id == R.id.reportar_esertor) {
-//            stub.setLayoutResource(R.layout.layout_faltas);
-//            stub.inflate();
-//            nombre_usuario_falta = (TextView) findViewById(R.id.nombre_usuario_falta);
-//            motivo_falta = (TextView) findViewById(R.id.motivo_falta);
-//            observacion_falta = (TextView) findViewById(R.id.observacion_falta);
-
-//            llenarSpinner();
-//            fab.setVisibility(View.VISIBLE);
             Intent intent = new Intent(getApplicationContext(), ReportarDesertorActivity.class);
-            //intent.putExtra("parametro", usuario);
             startActivity(intent);
 
         } else if (id == R.id.nav_gallery) {
             Intent intent = new Intent(getApplicationContext(), RegistrarFallasActivity.class);
             startActivity(intent);
-
-
         } else if (id == R.id.nav_slideshow) {
+            Intent intent = new Intent(getApplicationContext(), ListaFallasActivity.class);
+            startActivity(intent);
 
         } else if (id == R.id.nav_manage) {
 

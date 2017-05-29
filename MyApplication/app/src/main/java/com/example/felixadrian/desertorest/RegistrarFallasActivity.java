@@ -1,22 +1,27 @@
 package com.example.felixadrian.desertorest;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.annotation.TargetApi;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.felixadrian.objectos.Usuario;
+import com.example.felixadrian.servicios.ServiciosUsuarios;
 
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -36,6 +41,8 @@ public class RegistrarFallasActivity extends AppCompatActivity {
 
     private TextView mTextMessage;
     private EditText observacion_falta;
+    private ProgressBar enviarProgres;
+
     private ArrayList<Usuario> listaUsuarios = new ArrayList<>();
     HashMap<Long, Usuario> spinnerMap = new HashMap<Long, Usuario>();
 
@@ -64,7 +71,10 @@ public class RegistrarFallasActivity extends AppCompatActivity {
         observacion_falta = (EditText) findViewById(R.id.observacion_falta);
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
-        new getListaUsuarios().execute();
+
+        enviarProgres = (ProgressBar) findViewById(R.id.enviar_progress);
+        listaUsuarios = ServiciosUsuarios.getInstance().listaUsuarios;
+        llenarSpinner();
     }
 
     public String POST(String url) {
@@ -131,12 +141,14 @@ public class RegistrarFallasActivity extends AppCompatActivity {
     private class registrar extends AsyncTask<String, Void, String> {
         @Override
         protected String doInBackground(String... urls) {
+            showProgress(true);
             return POST(urls[0]);
         }
 
         // onPostExecute displays the results of the AsyncTask.
         @Override
         protected void onPostExecute(String result) {
+            showProgress(false);
             if (result.equals("1"))
                 Toast.makeText(getBaseContext(), "Inasistencia Reportada", Toast.LENGTH_LONG).show();
         }
@@ -154,76 +166,6 @@ public class RegistrarFallasActivity extends AppCompatActivity {
 
     }
 
-    private class getListaUsuarios extends AsyncTask<String, Void, String> {
-        @Override
-        protected String doInBackground(String... urls) {
-            InputStream inputStream = null;
-            String result = "";
-            try {
-                // 1. create HttpClient
-                HttpClient httpclient = new DefaultHttpClient();
-                // 2. make POST request to the given URL
-                HttpPost httpPost = new HttpPost("http://192.168.0.6/desertorest-admin/ajax/ajax_actions.php?accion=cargar_clientes");
-
-                String json = "";
-                // 3. build jsonObject
-                JSONObject jsonObject = new JSONObject();
-                jsonObject.accumulate("accion", "cargar_clientes");
-                // 4. convert JSONObject to JSON to String
-                json = jsonObject.toString();
-                // ** Alternative way to convert Person object to JSON string usin Jackson Lib
-                // ObjectMapper mapper = new ObjectMapper();
-                // json = mapper.writeValueAsString(person);
-                // 5. set json to StringEntity
-                StringEntity se = new StringEntity(json);
-                // 6. set httpPost Entity
-                httpPost.setEntity(se);
-                // 7. Set some headers to inform server about the type of the content
-                httpPost.setHeader("Accept", "application/json");
-                httpPost.setHeader("Content-type", "application/json");
-                // 8. Execute POST request to the given URL
-                HttpResponse httpResponse = httpclient.execute(httpPost);
-                // 9. receive response as inputStream
-                inputStream = httpResponse.getEntity().getContent();
-                // 10. convert inputstream to string
-                if (inputStream != null)
-                    result = convertInputStreamToString(inputStream);
-                else
-                    result = "Did not work!";
-            } catch (Exception e) {
-                Log.d("InputStream", e.getLocalizedMessage());
-            }
-            // 11. return result
-            return result;
-        }
-
-        // onPostExecute displays the results of the AsyncTask.
-        @Override
-        protected void onPostExecute(String result) {
-            JSONObject jsonObj = null;
-            try {
-                jsonObj = new JSONObject(result);
-                JSONArray jsonArray = jsonObj.getJSONArray("data");
-                if (jsonArray.length() > 0) {
-                    for (int i = 0; i < jsonArray.length(); i++) {
-                        Usuario usuario = new Usuario();
-                        usuario.setId(jsonArray.getJSONObject(i).getLong("usuario_id"));
-                        usuario.setTidentificacion(jsonArray.getJSONObject(i).getString("usuario_tidentificacion"));
-                        usuario.setIdentificacion(jsonArray.getJSONObject(i).getString("usuario_identificacion"));
-                        usuario.setNombres(jsonArray.getJSONObject(i).getString("usuario_nombres"));
-                        usuario.setApellidos(jsonArray.getJSONObject(i).getString("usuario_apellidos"));
-                        listaUsuarios.add(usuario);
-                    }
-                    llenarSpinner();
-                } else {
-                    Toast.makeText(getBaseContext(), "Data Sent!", Toast.LENGTH_LONG).show();
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-
-        }
-    }
 
     private void llenarSpinner() {
 
@@ -245,5 +187,33 @@ public class RegistrarFallasActivity extends AppCompatActivity {
         spinnerElmentosAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerMotivos.setAdapter(spinnerElmentosAdapter);
     }
+
+    /**
+     * Shows the progress UI and hides the login form.
+     */
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
+    private void showProgress(final boolean show) {
+        // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
+        // for very easy animations. If available, use these APIs to fade-in
+        // the progress spinner.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
+            int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
+
+            enviarProgres.setVisibility(show ? View.GONE : View.VISIBLE);
+            enviarProgres.animate().setDuration(shortAnimTime).alpha(
+                    show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    enviarProgres.setVisibility(show ? View.VISIBLE : View.GONE);
+                }
+            });
+        } else {
+            // The ViewPropertyAnimator APIs are not available, so simply show
+            // and hide the relevant UI components.
+            enviarProgres.setVisibility(show ? View.VISIBLE : View.GONE);
+
+        }
+    }
+
 
 }

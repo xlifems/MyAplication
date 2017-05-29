@@ -8,5 +8,4 @@
     tools:context="com.example.felixadrian.desertorest.InicioActivity"
     tools:showIn="@layout/app_bar_inicio">
 
-
 </android.support.constraint.ConstraintLayout>
