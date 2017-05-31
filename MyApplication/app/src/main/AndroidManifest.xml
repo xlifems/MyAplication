@@ -37,7 +37,8 @@
             android:label="@string/title_activity_registrar_fallas" />
         <activity
             android:name=".ListaFallasActivity"
-            android:label="@string/title_activity_lista_fallas"></activity>
+            android:label="@string/title_activity_lista_fallas" />
+        <activity android:name=".LeadsActivity"></activity>
     </application>
 
 </manifest>

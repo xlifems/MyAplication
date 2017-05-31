@@ -3,11 +3,13 @@ package com.example.felixadrian.desertorest;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
@@ -19,6 +21,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.felixadrian.objectos.Falta;
 import com.example.felixadrian.objectos.Usuario;
 import com.example.felixadrian.servicios.ServiciosUsuarios;
 
@@ -37,11 +40,21 @@ import cz.msebera.android.httpclient.client.methods.HttpPost;
 import cz.msebera.android.httpclient.entity.StringEntity;
 import cz.msebera.android.httpclient.impl.client.DefaultHttpClient;
 
+import static com.example.felixadrian.objectos.Estaticos.URL_SERVICES;
+
 public class RegistrarFallasActivity extends AppCompatActivity {
 
     private TextView mTextMessage;
     private EditText observacion_falta;
     private ProgressBar enviarProgres;
+
+    AlertDialog.Builder builder;
+    AlertDialog dialog;
+
+
+
+    Falta falta;
+    int spinner_pos;
 
     private ArrayList<Usuario> listaUsuarios = new ArrayList<>();
     HashMap<Long, Usuario> spinnerMap = new HashMap<Long, Usuario>();
@@ -56,7 +69,10 @@ public class RegistrarFallasActivity extends AppCompatActivity {
 
                     return true;
                 case R.id.navigation_notifications:
-                    new registrar().execute("http://192.168.0.6/desertorest-admin/ajax/ajax_actions.php?accion=registrar_faltas_android");
+                    Spinner spinnerUsuario = (Spinner) findViewById(R.id.usuariosSpinner);
+                    String text = spinnerUsuario.getSelectedItem().toString();
+                    dialog.setMessage("Desea agregar una falla al estudiante " +text);
+                    dialog.show();
                     return true;
             }
             return false;
@@ -75,6 +91,22 @@ public class RegistrarFallasActivity extends AppCompatActivity {
         enviarProgres = (ProgressBar) findViewById(R.id.enviar_progress);
         listaUsuarios = ServiciosUsuarios.getInstance().listaUsuarios;
         llenarSpinner();
+
+        builder = new AlertDialog.Builder(RegistrarFallasActivity.this);
+        builder.setMessage("").setTitle("Reportar Falla");
+        builder.setPositiveButton("Continuar", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                // User clicked OK button
+                new registrar().execute(URL_SERVICES + "accion=registrar_faltas_android");
+            }
+        });
+        builder.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                // User cancelled the dialog
+            }
+        });
+        // 3. Get the AlertDialog from create()
+        dialog = builder.create();
     }
 
     public String POST(String url) {
@@ -88,7 +120,7 @@ public class RegistrarFallasActivity extends AppCompatActivity {
 
             Spinner spinnerUsuario = (Spinner) findViewById(R.id.usuariosSpinner);
             String text = spinnerUsuario.getSelectedItem().toString();
-            int spinner_pos = spinnerUsuario.getSelectedItemPosition();
+            spinner_pos = spinnerUsuario.getSelectedItemPosition();
 
             Spinner spinnerMotivos = (Spinner) findViewById(R.id.motivosSpinner);
             String textMotivo = spinnerMotivos.getSelectedItem().toString();
@@ -149,8 +181,11 @@ public class RegistrarFallasActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String result) {
             showProgress(false);
-            if (result.equals("1"))
+            if (result.equals("1")) {
                 Toast.makeText(getBaseContext(), "Inasistencia Reportada", Toast.LENGTH_LONG).show();
+                int total = ServiciosUsuarios.getInstance().getListaUsuariosFallas().get(spinner_pos).getTotalFallas();
+                ServiciosUsuarios.getInstance().getListaUsuariosFallas().get(spinner_pos).setTotalFallas(total + 1);
+            }
         }
     }
 
@@ -171,7 +206,7 @@ public class RegistrarFallasActivity extends AppCompatActivity {
 
         ArrayList<String> strings = new ArrayList<>();
         for (int i = 0; i < listaUsuarios.size(); i++) {
-            strings.add(listaUsuarios.get(i).getNombres() + " " + listaUsuarios.get(i).getNombres());
+            strings.add(listaUsuarios.get(i).getNombres() + " " + listaUsuarios.get(i).getApellidos());
             spinnerMap.put((long) i, listaUsuarios.get(i));
         }
 
@@ -186,6 +221,11 @@ public class RegistrarFallasActivity extends AppCompatActivity {
         ArrayAdapter spinnerElmentosAdapter = ArrayAdapter.createFromResource(this, R.array.motivos_faltas, android.R.layout.simple_spinner_item);
         spinnerElmentosAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerMotivos.setAdapter(spinnerElmentosAdapter);
+
+        Spinner spinnerCursos = (Spinner) findViewById(R.id.cursosSpinner);
+        ArrayAdapter spinnerCurosAdapter = ArrayAdapter.createFromResource(this, R.array.cursos, android.R.layout.simple_spinner_item);
+        spinnerCurosAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerCursos.setAdapter(spinnerCurosAdapter);
     }
 
     /**
@@ -214,6 +254,7 @@ public class RegistrarFallasActivity extends AppCompatActivity {
 
         }
     }
+
 
 
 }

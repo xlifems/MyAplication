@@ -8,6 +8,7 @@ public class Falta {
     private int idUsuario;
     private String motivoFalta;
     private String observacionFalta;
+    private String fechaFalta;
 
     public Falta(){
 
@@ -35,5 +36,14 @@ public class Falta {
 
     public void setObservacionFalta(String observacionFalta) {
         this.observacionFalta = observacionFalta;
+    }
+
+
+    public String getFechaFalta() {
+        return fechaFalta;
+    }
+
+    public void setFechaFalta(String fechaFalta) {
+        this.fechaFalta = fechaFalta;
     }
 }

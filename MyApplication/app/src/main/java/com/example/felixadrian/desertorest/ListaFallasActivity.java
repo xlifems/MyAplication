@@ -36,7 +36,6 @@ public class ListaFallasActivity extends AppCompatActivity {
         ArrayList<String> strings = new ArrayList<>();
         for (int i = 0; i < listaUsuarios.size(); i++) {
             strings.add(listaUsuarios.get(i).getNombres() + " " + listaUsuarios.get(i).getNombres());
-
         }
 
         adaptador = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1, strings);

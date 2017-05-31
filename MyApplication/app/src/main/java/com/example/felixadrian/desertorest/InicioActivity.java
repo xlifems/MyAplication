@@ -3,9 +3,7 @@ package com.example.felixadrian.desertorest;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -46,6 +44,7 @@ import cz.msebera.android.httpclient.impl.client.DefaultHttpClient;
 
 import static com.example.felixadrian.desertorest.R.id.layout_stub;
 import static com.example.felixadrian.desertorest.R.string.navigation_drawer_open;
+import static com.example.felixadrian.objectos.Estaticos.URL_SERVICES;
 
 public class InicioActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -56,8 +55,7 @@ public class InicioActivity extends AppCompatActivity
     private TextView motivo_falta;
     private TextView observacion_falta;
     private Button registrar_falta_button;
-    private FloatingActionButton fab;
-    private FloatingActionButton fab2;
+
 
     private View inflated;
     private ViewStub stub;
@@ -84,33 +82,6 @@ public class InicioActivity extends AppCompatActivity
 
         stub = (ViewStub) findViewById(layout_stub);
 
-
-        fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // call AsynTask to perform network operation on separate thread
-                new registrar().execute("http://192.168.0.6/desertorest-admin/ajax/ajax_actions.php?accion=registrar_faltas_android");
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
-
-        fab2 = (FloatingActionButton) findViewById(R.id.fab_2);
-        fab2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // call AsynTask to perform network operation on separate thread
-                //new registrar().execute("http://192.168.0.18/desertorest-admin/ajax/ajax_actions.php?accion=registrar_faltas_android");
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
-
-
-        fab.setVisibility(View.INVISIBLE);
-        fab2.setVisibility(View.INVISIBLE);
-
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, navigation_drawer_open, R.string.navigation_drawer_close) {
             /** Called when a drawer has settled in a completely closed state. */
@@ -132,9 +103,10 @@ public class InicioActivity extends AppCompatActivity
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
         getUsuario();
-        falta = new Falta();
-        //new getListaUsuarios().execute();
         ServiciosUsuarios.getInstance().usuarios();
+        ServiciosUsuarios.getInstance().usuariosFallas();
+        ServiciosUsuarios.getInstance().docentesNiveles(usuario.getId());
+
     }
 
     public void setDatosHeader() {
@@ -187,7 +159,7 @@ public class InicioActivity extends AppCompatActivity
             Intent intent = new Intent(getApplicationContext(), RegistrarFallasActivity.class);
             startActivity(intent);
         } else if (id == R.id.nav_slideshow) {
-            Intent intent = new Intent(getApplicationContext(), ListaFallasActivity.class);
+            Intent intent = new Intent(getApplicationContext(), LeadsActivity.class);
             startActivity(intent);
 
         } else if (id == R.id.nav_manage) {
@@ -305,7 +277,7 @@ public class InicioActivity extends AppCompatActivity
                 // 1. create HttpClient
                 HttpClient httpclient = new DefaultHttpClient();
                 // 2. make POST request to the given URL
-                HttpPost httpPost = new HttpPost("http://192.168.0.6/desertorest-admin/ajax/ajax_actions.php?accion=cargar_clientes");
+                HttpPost httpPost = new HttpPost( URL_SERVICES + "accion=cargar_clientes");
 
                 String json = "";
                 // 3. build jsonObject
@@ -349,7 +321,7 @@ public class InicioActivity extends AppCompatActivity
                 if (jsonArray.length() > 0) {
                     for (int i = 0; i < jsonArray.length(); i++) {
                         Usuario usuario = new Usuario();
-                        usuario.setId(jsonArray.getJSONObject(i).getLong("usuario_id"));
+                        usuario.setId(jsonArray.getJSONObject(i).getInt("usuario_id"));
                         usuario.setTidentificacion(jsonArray.getJSONObject(i).getString("usuario_tidentificacion"));
                         usuario.setIdentificacion(jsonArray.getJSONObject(i).getString("usuario_identificacion"));
                         usuario.setNombres(jsonArray.getJSONObject(i).getString("usuario_nombres"));

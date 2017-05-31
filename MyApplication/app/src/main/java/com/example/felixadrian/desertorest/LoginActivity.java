@@ -42,6 +42,7 @@ import java.util.List;
 import cz.msebera.android.httpclient.Header;
 
 import static android.Manifest.permission.READ_CONTACTS;
+import static com.example.felixadrian.objectos.Estaticos.URL_SERVICES;
 
 /**
  * A login screen that offers login via email/password.
@@ -306,7 +307,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         params.put("accion", "login_user");
 
         AsyncHttpClient client = new AsyncHttpClient();
-        String url = "http://192.168.0.6/desertorest-admin/ajax/ajax_actions.php?";
+        String url =  URL_SERVICES ;
         //String url = "http://desertorest.flibdig.com/ajax/ajax_actions.php?";
         client.get( url + params, new AsyncHttpResponseHandler() {
             @Override
@@ -320,13 +321,13 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                     JSONObject jsonObj = new JSONObject(str);
                     if (jsonObj.length() > 0) {
                         Usuario usuario = new Usuario();
-                        usuario.setId(jsonObj.getLong("usuario_id"));
-                        usuario.setNickname(jsonObj.getString("usuario_nickname"));
-                        usuario.setTidentificacion(jsonObj.getString("usuario_tidentificacion"));
-                        usuario.setIdentificacion(jsonObj.getString("usuario_identificacion"));
-                        usuario.setNombres(jsonObj.getString("usuario_nombres"));
-                        usuario.setApellidos(jsonObj.getString("usuario_apellidos"));
-                        usuario.setCorreo(jsonObj.getString("usuario_correo"));
+                        usuario.setId(jsonObj.getInt("docentes_id"));
+                        usuario.setNickname(jsonObj.getString("docentes_nickname"));
+                        usuario.setTidentificacion(jsonObj.getString("docentes_tidentificacion"));
+                        usuario.setIdentificacion(jsonObj.getString("docentes_identificacion"));
+                        usuario.setNombres(jsonObj.getString("docentes_nombres"));
+                        usuario.setApellidos(jsonObj.getString("docentes_apellidos"));
+                        usuario.setCorreo(jsonObj.getString("docentes_correo"));
 
 
                         Intent intent = new Intent(getApplicationContext(),  InicioActivity.class);

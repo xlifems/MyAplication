@@ -9,7 +9,7 @@ import android.os.Parcelable;
 
 public class Usuario implements Parcelable {
 
-    private Long id;
+    private int id;
     private String nickname;
     private String tidentificacion;
     private String identificacion;
@@ -24,16 +24,18 @@ public class Usuario implements Parcelable {
     private String password;
     private String tipo;
 
+    private int totalFallas;
+
     public Usuario() {
 
     }
 
 
-    public Long getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(int id) {
         this.id = id;
     }
 
@@ -142,7 +144,7 @@ public class Usuario implements Parcelable {
     }
 
     protected Usuario(Parcel in) {
-        id = in.readByte() == 0x00 ? null : in.readLong();
+        id = in.readInt();
         nickname = in.readString();
         tidentificacion = in.readString();
         identificacion = in.readString();
@@ -165,12 +167,8 @@ public class Usuario implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        if (id == null) {
-            dest.writeByte((byte) (0x00));
-        } else {
-            dest.writeByte((byte) (0x01));
-            dest.writeLong(id);
-        }
+
+        dest.writeInt(id);
         dest.writeString(nickname);
         dest.writeString(tidentificacion);
         dest.writeString(identificacion);
@@ -198,4 +196,12 @@ public class Usuario implements Parcelable {
             return new Usuario[size];
         }
     };
+
+    public int getTotalFallas() {
+        return totalFallas;
+    }
+
+    public void setTotalFallas(int totalFallas) {
+        this.totalFallas = totalFallas;
+    }
 }

@@ -23,4 +23,15 @@
         <item>Vueltas personales</item>
         <item>Otra cual</item>
     </string-array>
+
+    <string-array name="cursos">
+        <item>1-01</item>
+        <item>2-01</item>
+        <item>3-01</item>
+        <item>4-01</item>
+        <item>4-02</item>
+        <item>5-01</item>
+        <item>5-02</item>
+        <item>6-01</item>
+    </string-array>
 </resources>

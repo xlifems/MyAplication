@@ -37,6 +37,8 @@ import cz.msebera.android.httpclient.client.methods.HttpPost;
 import cz.msebera.android.httpclient.entity.StringEntity;
 import cz.msebera.android.httpclient.impl.client.DefaultHttpClient;
 
+import static com.example.felixadrian.objectos.Estaticos.URL_SERVICES;
+
 public class ReportarDesertorActivity extends AppCompatActivity {
 
 
@@ -58,7 +60,7 @@ public class ReportarDesertorActivity extends AppCompatActivity {
                 case R.id.navigation_home:
                     return true;
                 case R.id.navigation_notifications:
-                    new registrar().execute("http://192.168.0.6/desertorest-admin/ajax/ajax_actions.php?accion=registrar_desertor_android");
+                    new registrar().execute(URL_SERVICES +"accion=registrar_desertor_android");
                     return true;
             }
             return false;
@@ -195,6 +197,11 @@ public class ReportarDesertorActivity extends AppCompatActivity {
         ArrayAdapter spinnerElmentosAdapter = ArrayAdapter.createFromResource(this, R.array.motivos, android.R.layout.simple_spinner_item);
         spinnerElmentosAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerMotivos.setAdapter(spinnerElmentosAdapter);
+
+        Spinner spinnerCursos = (Spinner) findViewById(R.id.cursosSpinner);
+        ArrayAdapter spinnerCurosAdapter = ArrayAdapter.createFromResource(this, R.array.cursos, android.R.layout.simple_spinner_item);
+        spinnerCurosAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerCursos.setAdapter(spinnerCurosAdapter );
     }
 
     /**
