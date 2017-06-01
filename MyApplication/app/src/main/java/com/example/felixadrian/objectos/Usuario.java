@@ -25,6 +25,7 @@ public class Usuario implements Parcelable {
     private String tipo;
 
     private int totalFallas;
+    private int id_nivel;
 
     public Usuario() {
 
@@ -158,6 +159,7 @@ public class Usuario implements Parcelable {
         correo = in.readString();
         password = in.readString();
         tipo = in.readString();
+        id_nivel = in.readInt();
     }
 
     @Override
@@ -182,6 +184,7 @@ public class Usuario implements Parcelable {
         dest.writeString(correo);
         dest.writeString(password);
         dest.writeString(tipo);
+        dest.writeInt(id_nivel);
     }
 
     @SuppressWarnings("unused")
@@ -203,5 +206,13 @@ public class Usuario implements Parcelable {
 
     public void setTotalFallas(int totalFallas) {
         this.totalFallas = totalFallas;
+    }
+
+    public int getId_nivel() {
+        return id_nivel;
+    }
+
+    public void setId_nivel(int id_nivel) {
+        this.id_nivel = id_nivel;
     }
 }

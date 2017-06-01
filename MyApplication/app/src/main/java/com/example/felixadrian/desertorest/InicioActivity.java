@@ -103,7 +103,7 @@ public class InicioActivity extends AppCompatActivity
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
         getUsuario();
-        ServiciosUsuarios.getInstance().usuarios();
+        ServiciosUsuarios.getInstance().usuarios(usuario.getId());
         ServiciosUsuarios.getInstance().usuariosFallas();
         ServiciosUsuarios.getInstance().docentesNiveles(usuario.getId());
 

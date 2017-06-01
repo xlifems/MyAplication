@@ -43,7 +43,8 @@ public class ServiciosUsuarios {
     private ServiciosUsuarios() {
     }
 
-    public void usuarios(){
+    public void usuarios(int num){
+        docenteId = num;
         new getListaUsuarios().execute();
     }
     public void usuariosFallas(){
@@ -73,12 +74,12 @@ public class ServiciosUsuarios {
                 // 1. create HttpClient
                 HttpClient httpclient = new DefaultHttpClient();
                 // 2. make POST request to the given URL
-                HttpPost httpPost = new HttpPost( URL_SERVICES+"accion=cargar_clientes");
+                HttpPost httpPost = new HttpPost( URL_SERVICES+"accion=load_estudiantes_android");
 
                 String json = "";
                 // 3. build jsonObject
                 JSONObject jsonObject = new JSONObject();
-                jsonObject.accumulate("accion", "cargar_clientes");
+                jsonObject.accumulate("docentes_id", docenteId);
                 // 4. convert JSONObject to JSON to String
                 json = jsonObject.toString();
                 // ** Alternative way to convert Person object to JSON string usin Jackson Lib
@@ -122,6 +123,7 @@ public class ServiciosUsuarios {
                         usuario.setIdentificacion(jsonArray.getJSONObject(i).getString("usuario_identificacion"));
                         usuario.setNombres(jsonArray.getJSONObject(i).getString("usuario_nombres"));
                         usuario.setApellidos(jsonArray.getJSONObject(i).getString("usuario_apellidos"));
+                        usuario.setId_nivel(jsonArray.getJSONObject(i).getInt("usuario_nivel_id"));
                         listaUsuarios.add(usuario);
                     }
                 }
@@ -266,8 +268,7 @@ public class ServiciosUsuarios {
                         nivel.setIdNivel(jsonArray.getJSONObject(i).getInt("id_nivel"));
                         nivel.setNombreNivel(jsonArray.getJSONObject(i).getString("nombre_nivel"));
                         nivel.setDocentesId(jsonArray.getJSONObject(i).getInt("docentes_id"));
-
-
+                        listaNivel.add(nivel);
                     }
                 }
             } catch (JSONException e) {
@@ -293,5 +294,7 @@ public class ServiciosUsuarios {
         return result;
 
     }
+
+
 
 }

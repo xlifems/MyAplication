@@ -14,6 +14,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ProgressBar;
@@ -22,6 +23,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.felixadrian.objectos.Falta;
+import com.example.felixadrian.objectos.Nivel;
 import com.example.felixadrian.objectos.Usuario;
 import com.example.felixadrian.servicios.ServiciosUsuarios;
 
@@ -40,7 +42,9 @@ import cz.msebera.android.httpclient.client.methods.HttpPost;
 import cz.msebera.android.httpclient.entity.StringEntity;
 import cz.msebera.android.httpclient.impl.client.DefaultHttpClient;
 
+import static com.example.felixadrian.desertorest.R.id.usuariosSpinner;
 import static com.example.felixadrian.objectos.Estaticos.URL_SERVICES;
+import static com.example.felixadrian.servicios.ServiciosUsuarios.listaNivel;
 
 public class RegistrarFallasActivity extends AppCompatActivity {
 
@@ -51,13 +55,16 @@ public class RegistrarFallasActivity extends AppCompatActivity {
     AlertDialog.Builder builder;
     AlertDialog dialog;
 
-
+    private Spinner spinnerCursos;
+    private Spinner spinnerMotivos;
+    private Spinner spinnerUsuarios;
 
     Falta falta;
     int spinner_pos;
 
     private ArrayList<Usuario> listaUsuarios = new ArrayList<>();
     HashMap<Long, Usuario> spinnerMap = new HashMap<Long, Usuario>();
+    HashMap<Integer, Nivel> mapNiveles = new HashMap<Integer, Nivel>();
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -69,8 +76,7 @@ public class RegistrarFallasActivity extends AppCompatActivity {
 
                     return true;
                 case R.id.navigation_notifications:
-                    Spinner spinnerUsuario = (Spinner) findViewById(R.id.usuariosSpinner);
-                    String text = spinnerUsuario.getSelectedItem().toString();
+                    String text = spinnerUsuarios.getSelectedItem().toString();
                     dialog.setMessage("Desea agregar una falla al estudiante " +text);
                     dialog.show();
                     return true;
@@ -88,9 +94,15 @@ public class RegistrarFallasActivity extends AppCompatActivity {
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
+        spinnerCursos = (Spinner) findViewById(R.id.cursosSpinner);
+        spinnerMotivos = (Spinner) findViewById(R.id.motivosSpinner);
+        spinnerUsuarios = (Spinner) findViewById(usuariosSpinner);
+
         enviarProgres = (ProgressBar) findViewById(R.id.enviar_progress);
+        listaUsuarios.clear();
         listaUsuarios = ServiciosUsuarios.getInstance().listaUsuarios;
         llenarSpinner();
+
 
         builder = new AlertDialog.Builder(RegistrarFallasActivity.this);
         builder.setMessage("").setTitle("Reportar Falla");
@@ -107,6 +119,22 @@ public class RegistrarFallasActivity extends AppCompatActivity {
         });
         // 3. Get the AlertDialog from create()
         dialog = builder.create();
+
+        spinnerCursos.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                //adapterView.getItemAtPosition(i);
+                int numPostion = adapterView.getSelectedItemPosition();
+                int idNivel = mapNiveles.get(numPostion).getIdNivel();
+                Toast.makeText(getBaseContext(), "Estudiantes para el curso "+mapNiveles.get(numPostion).getNombreNivel() , Toast.LENGTH_LONG).show();
+                spinnerUsuarios.setAdapter(null);
+                llenarSpinnerEstudiantes(idNivel);
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
     }
 
     public String POST(String url) {
@@ -118,11 +146,9 @@ public class RegistrarFallasActivity extends AppCompatActivity {
             // 2. make POST request to the given URL
             HttpPost httpPost = new HttpPost(url);
 
-            Spinner spinnerUsuario = (Spinner) findViewById(R.id.usuariosSpinner);
-            String text = spinnerUsuario.getSelectedItem().toString();
-            spinner_pos = spinnerUsuario.getSelectedItemPosition();
+            String text = spinnerUsuarios.getSelectedItem().toString();
+            spinner_pos = spinnerUsuarios.getSelectedItemPosition();
 
-            Spinner spinnerMotivos = (Spinner) findViewById(R.id.motivosSpinner);
             String textMotivo = spinnerMotivos.getSelectedItem().toString();
             String json = "";
             // 3. build jsonObject
@@ -204,28 +230,38 @@ public class RegistrarFallasActivity extends AppCompatActivity {
 
     private void llenarSpinner() {
 
-        ArrayList<String> strings = new ArrayList<>();
-        for (int i = 0; i < listaUsuarios.size(); i++) {
-            strings.add(listaUsuarios.get(i).getNombres() + " " + listaUsuarios.get(i).getApellidos());
-            spinnerMap.put((long) i, listaUsuarios.get(i));
-        }
-
-        Spinner usuariosSpinner = (Spinner) findViewById(R.id.usuariosSpinner);
-        ArrayAdapter spinner_adapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item, strings);
-        //Estiliza el spinner_adapter de forma que queden separados los elementos
-        spinner_adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        // Seteamos el contenido del spinner_adapter al Spinner
-        usuariosSpinner.setAdapter(spinner_adapter);
-
-        Spinner spinnerMotivos = (Spinner) findViewById(R.id.motivosSpinner);
+        // Llenar el spinner de Motivos
         ArrayAdapter spinnerElmentosAdapter = ArrayAdapter.createFromResource(this, R.array.motivos_faltas, android.R.layout.simple_spinner_item);
         spinnerElmentosAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerMotivos.setAdapter(spinnerElmentosAdapter);
 
-        Spinner spinnerCursos = (Spinner) findViewById(R.id.cursosSpinner);
-        ArrayAdapter spinnerCurosAdapter = ArrayAdapter.createFromResource(this, R.array.cursos, android.R.layout.simple_spinner_item);
+        // Llenar el spinner de cursos
+        ArrayList<String> niveles = new ArrayList<>();
+        for (int i = 0; i < listaNivel.size(); i++) {
+            niveles.add(listaNivel.get(i).getNombreNivel());
+            mapNiveles.put( i, listaNivel.get(i));
+        }
+
+        ArrayAdapter spinnerCurosAdapter =new ArrayAdapter(this, android.R.layout.simple_spinner_item, niveles);
         spinnerCurosAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerCursos.setAdapter(spinnerCurosAdapter);
+    }
+
+    public void llenarSpinnerEstudiantes(int idNivel){
+        // Llenar el spinner de Estudiantes
+        ArrayList<String> strings = new ArrayList<>();
+        for (int i = 0; i < listaUsuarios.size(); i++) {
+            if (listaUsuarios.get(i).getId_nivel() == idNivel){
+                strings.add(listaUsuarios.get(i).getNombres() + " " + listaUsuarios.get(i).getApellidos());
+                spinnerMap.put((long) i, listaUsuarios.get(i));
+            }
+        }
+        ArrayAdapter spinner_adapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item, strings);
+        //Estiliza el spinner_adapter de forma que queden separados los elementos
+        spinner_adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        // Seteamos el contenido del spinner_adapter al Spinner
+        spinnerUsuarios.setAdapter(spinner_adapter);
+
     }
 
     /**
@@ -254,7 +290,5 @@ public class RegistrarFallasActivity extends AppCompatActivity {
 
         }
     }
-
-
 
 }
