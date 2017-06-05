@@ -11,7 +11,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewStub;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -24,7 +23,6 @@ import com.example.felixadrian.servicios.ServiciosUsuarios;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import static com.example.felixadrian.desertorest.R.id.layout_stub;
 import static com.example.felixadrian.desertorest.R.string.navigation_drawer_open;
 
 public class InicioActivity extends AppCompatActivity
@@ -34,7 +32,7 @@ public class InicioActivity extends AppCompatActivity
     NavigationView navigationView;
 
     private View inflated;
-    private ViewStub stub;
+
     Usuario usuario;
     Falta falta;
     private int numPresionar = 0;
@@ -57,7 +55,7 @@ public class InicioActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        stub = (ViewStub) findViewById(layout_stub);
+
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, navigation_drawer_open, R.string.navigation_drawer_close) {

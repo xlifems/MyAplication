@@ -1,27 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="motivos">
-        <item>Fallecido</item>
-        <item>Desertor</item>
-        <item>Se caso</item>
+        <item>Se casó</item>
         <item>No le gusta el estudio</item>
         <item>Trabaja</item>
-        <item>No se tiene informacion aun</item>
-        <item>Reprobo el año</item>
-        <item>Violencia familiar</item>
-        <item>Bulling</item>
+        <item>Embarazo</item>
+        <item>Madre cabeza de família</item>
+        <item>Acoso escolar</item>
+        <item>Violencia intrafamiliar</item>
         <item>Drogas</item>
-        <item>Expulsado </item>
-        <item>Otra cual</item>
+        <item>Zona difícil acceso</item>
+        <item>Enfermedad</item>
     </string-array>
 
     <string-array name="motivos_faltas">
         <item>Lluvias</item>
-        <item>Esta enfermo</item>
-        <item>No esta en la ciudad</item>
-        <item>Cita médica</item>
-        <item>Vueltas personales</item>
-        <item>Otra cual</item>
+        <item>Zona difícil acceso</item>
+        <item>Enfermedad</item>
+        <item>Presentó excusas</item>
+        <item>No ingreso al salón</item>
+        <item>Expulsado</item>
     </string-array>
 
     <string-array name="cursos">

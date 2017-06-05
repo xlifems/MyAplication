@@ -8,4 +8,20 @@
     tools:context="com.example.felixadrian.desertorest.InicioActivity"
     tools:showIn="@layout/app_bar_inicio">
 
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@mipmap/desk"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Reportar desde tu telefono, lo que pasa en el aula es ahora facil."/>
+
+    </LinearLayout>
+
 </android.support.constraint.ConstraintLayout>

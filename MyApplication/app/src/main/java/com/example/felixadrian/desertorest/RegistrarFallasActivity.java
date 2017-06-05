@@ -132,7 +132,7 @@ public class RegistrarFallasActivity extends AppCompatActivity {
                 //adapterView.getItemAtPosition(i);
                 int numPostion = adapterView.getSelectedItemPosition();
                 int idNivel = mapNiveles.get(numPostion).getIdNivel();
-                Toast.makeText(getBaseContext(), "Estudiantes para el curso "+mapNiveles.get(numPostion).getNombreNivel() , Toast.LENGTH_LONG).show();
+                Toast.makeText(getBaseContext(), "Estudiantes del grado "+mapNiveles.get(numPostion).getNombreNivel() , Toast.LENGTH_LONG).show();
                 spinnerUsuarios.setAdapter(null);
                 llenarSpinnerEstudiantes(idNivel);
             }
