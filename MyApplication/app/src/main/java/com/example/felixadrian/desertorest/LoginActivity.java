@@ -42,18 +42,20 @@ import java.util.List;
 import cz.msebera.android.httpclient.Header;
 
 import static android.Manifest.permission.READ_CONTACTS;
+import static com.example.felixadrian.objectos.Estaticos.DOCENTE;
 import static com.example.felixadrian.objectos.Estaticos.URL_SERVICES;
 
 /**
  * A login screen that offers login via email/password.
  */
 
-public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<Cursor>  {
+public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<Cursor> {
 
     /**
      * Id to identity READ_CONTACTS permission request.
      */
     private static final int REQUEST_READ_CONTACTS = 0;
+    public  static Usuario DOCENTE_SESION = new Usuario();
 
     /**
      * A dummy authentication store containing known user names and passwords.
@@ -96,6 +98,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         mEmailSignInButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
+                showProgress(true);
                 attemptLogin();
             }
         });
@@ -168,9 +171,10 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         // Check for a valid password, if the user entered one.
         if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
-            mPasswordView.setError(getString(R.string.error_invalid_password));
+            mPasswordView.setError("La contraseña no es valida");
             focusView = mPasswordView;
             cancel = true;
+            showProgress(false);
         }
 
         // Check for a valid email address.
@@ -193,7 +197,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             // perform the user login attempt.
             showProgress(true);
             login();
-
         }
     }
 
@@ -298,18 +301,17 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     }
 
 
-
     public void login() {
         String str = "";
         RequestParams params = new RequestParams();
         params.put("usuario", mEmailView.getText());
-        params.put("password", "890504");
+        params.put("password", mPasswordView.getText());
         params.put("accion", "login_user");
 
         AsyncHttpClient client = new AsyncHttpClient();
-        String url =  URL_SERVICES ;
+        String url = URL_SERVICES;
         //String url = "http://desertorest.flibdig.com/ajax/ajax_actions.php?";
-        client.get( url + params, new AsyncHttpResponseHandler() {
+        client.get(url + params, new AsyncHttpResponseHandler() {
             @Override
             public void onStart() {
             }
@@ -318,35 +320,41 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             public void onSuccess(int statusCode, Header[] headers, byte[] response) {
                 String str = new String(response);
                 try {
-                    JSONObject jsonObj = new JSONObject(str);
-                    if (jsonObj.length() > 0) {
-                        Usuario usuario = new Usuario();
-                        usuario.setId(jsonObj.getInt("docentes_id"));
-                        usuario.setNickname(jsonObj.getString("docentes_nickname"));
-                        usuario.setTidentificacion(jsonObj.getString("docentes_tidentificacion"));
-                        usuario.setIdentificacion(jsonObj.getString("docentes_identificacion"));
-                        usuario.setNombres(jsonObj.getString("docentes_nombres"));
-                        usuario.setApellidos(jsonObj.getString("docentes_apellidos"));
-                        usuario.setCorreo(jsonObj.getString("docentes_correo"));
+                    if (!str.equals("null")) {
+                        JSONObject jsonObj = new JSONObject(str);
+                        if (jsonObj.length() > 0) {
+                            Usuario usuario = new Usuario();
+                            usuario.setId(jsonObj.getInt("docentes_id"));
+                            usuario.setNickname(jsonObj.getString("docentes_nickname"));
+                            usuario.setTidentificacion(jsonObj.getString("docentes_tidentificacion"));
+                            usuario.setIdentificacion(jsonObj.getString("docentes_identificacion"));
+                            usuario.setNombres(jsonObj.getString("docentes_nombres"));
+                            usuario.setApellidos(jsonObj.getString("docentes_apellidos"));
+                            usuario.setCorreo(jsonObj.getString("docentes_correo"));
 
-
-                        Intent intent = new Intent(getApplicationContext(),  InicioActivity.class);
-                        intent.putExtra("parametro", usuario);
-                        startActivity(intent);
-                        showProgress(false);
-
+                            DOCENTE = usuario;
+                            Intent intent = new Intent(getApplicationContext(), InicioActivity.class);
+                            intent.putExtra("parametro", usuario);
+                            startActivity(intent);
+                        }
                     } else {
                         showProgress(false);
                         Toast.makeText(LoginActivity.this, "Datos de acceso invalidos", Toast.LENGTH_LONG).show();
                     }
+                    showProgress(false);
                 } catch (JSONException e) {
+                    Toast.makeText(LoginActivity.this, "Datos de acceso invalidos", Toast.LENGTH_LONG).show();
+                    showProgress(false);
                     e.printStackTrace();
                 }
+                showProgress(false);
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] errorResponse, Throwable e) {
                 // called when response HTTP status is "4XX" (eg. 401, 403, 404)
+                Toast.makeText(getBaseContext(), "Falló la conexión", Toast.LENGTH_LONG).show();
+
             }
 
             @Override
@@ -354,7 +362,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 int i = 0;
             }
 
-         });
+        });
     }
 }
 

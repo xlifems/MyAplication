@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -42,6 +43,7 @@ import cz.msebera.android.httpclient.entity.StringEntity;
 import cz.msebera.android.httpclient.impl.client.DefaultHttpClient;
 
 import static com.example.felixadrian.desertorest.R.id.usuariosSpinner;
+import static com.example.felixadrian.objectos.Estaticos.DOCENTE;
 import static com.example.felixadrian.objectos.Estaticos.URL_SERVICES;
 import static com.example.felixadrian.servicios.ServiciosUsuarios.listaNivel;
 
@@ -72,6 +74,10 @@ public class ReportarDesertorActivity extends AppCompatActivity {
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             switch (item.getItemId()) {
                 case R.id.navigation_home:
+                    finish();
+                    Intent intent = new Intent(getApplicationContext(), InicioActivity.class);
+                    intent.putExtra("parametro", DOCENTE);
+                    startActivity(intent);
                     return true;
                 case R.id.navigation_notifications:
                     String text = spinnerUsuarios.getSelectedItem().toString();
